@@ -373,6 +373,33 @@ function calcStreak(){
   for(let i=0;i<365;i++){
     const k=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
     if(db.creatina[k]===true){streak++;d.setDate(d.getDate()-1);}else break;
+// ===============================
+// GymLog Rugby — Widget Creatina
+// ===============================
+
+// REEMPLAZÁ ESTE LINK POR EL TUYO
+const APP_URL =
+  "https://TUUSUARIO.github.io/TUREPO/#creatina";
+
+// ===============================
+
+const KEY = "gymlog_creatina_data";
+
+const fm = FileManager.local();
+
+const path = fm.joinPath(
+  fm.documentsDirectory(),
+  KEY + ".json"
+);
+
+// ===============================
+// STORAGE
+// ===============================
+
+function loadData() {
+
+  if (!fm.fileExists(path)) {
+    return {};
   }
   return streak;
 }
@@ -387,6 +414,7 @@ function markToday(val){
   db.creatina[todayKey()]=val;saveDb();renderCreatina();renderHome();
   toast(val?'✅ ¡Creatina registrada!':'❌ Marcado como no tomada');
 }
+  try {
 
 function renderCreatina(){
   const k=todayKey();const val=db.creatina[k];
@@ -403,6 +431,13 @@ function renderCreatina(){
   document.getElementById('crea-month').innerHTML=taken+' <span>días</span>';
   document.getElementById('crea-pct').textContent=total>0?Math.round(taken/total*100)+'%':'—';
 }
+    return JSON.parse(
+      fm.readString(path)
+    );
+
+  } catch(e) {
+
+    return {};
 
 function renderCalendar(){
   const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -451,6 +486,7 @@ function getScriptableCode(){return `// GymLog Rugby — Widget Creatina para Sc
 // 1. Instalá Scriptable (App Store, gratis)
 // 2. Pegá este código y guardalo como "Creatina"
 // 3. Agregá el widget Scriptable a tu pantalla de inicio
+function saveData(data) {
 
 const KEY = "gymlog_creatina_data";
 const fm = FileManager.local();
@@ -459,49 +495,193 @@ const path = fm.joinPath(fm.documentsDirectory(), KEY + ".json");
 function loadData() {
   if (!fm.fileExists(path)) return {};
   try { return JSON.parse(fm.readString(path)); } catch(e) { return {}; }
+  fm.writeString(
+    path,
+    JSON.stringify(data)
+  );
 }
 function saveData(data) { fm.writeString(path, JSON.stringify(data)); }
+
 function todayKey() {
+
   const d = new Date();
   return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
+
+  return (
+    d.getFullYear() +
+    "-" +
+    (d.getMonth() + 1) +
+    "-" +
+    d.getDate()
+  );
 }
+
+// ===============================
+// RACHA
+// ===============================
+
 function calcStreak(data) {
   let streak = 0, d = new Date();
+
+  let streak = 0;
+
+  let d = new Date();
+
   for (let i = 0; i < 365; i++) {
     const k = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
     if (data[k] === true) { streak++; d.setDate(d.getDate()-1); } else break;
+
+    const k =
+      d.getFullYear() +
+      "-" +
+      (d.getMonth() + 1) +
+      "-" +
+      d.getDate();
+
+    if (data[k] === true) {
+
+      streak++;
+
+      d.setDate(
+        d.getDate() - 1
+      );
+
+    } else {
+
+      break;
+
+    }
   }
+
   return streak;
 }
 
 if (config.runsInWidget === false) {
+// ===============================
+// CLICK EN WIDGET
+// ===============================
+
+if (!config.runsInWidget) {
+
   let data = loadData();
+
   const k = todayKey();
+
+  // cambia el estado
   data[k] = data[k] !== true;
+
   saveData(data);
+
+  // vibración
+  Device.mediumImpact();
+
+  // abrir app directo a creatina
+  Safari.open(APP_URL);
+
   Script.complete();
+
+  return;
 }
 
 let data = loadData();
+// ===============================
+// DATA
+// ===============================
+
+const data = loadData();
+
 const k = todayKey();
 const taken = data[k] === true;
 const streak = calcStreak(data);
+
+const taken =
+  data[k] === true;
+
+const streak =
+  calcStreak(data);
+
+// ===============================
+// WIDGET
+// ===============================
+
 const w = new ListWidget();
 w.backgroundColor = new Color("#1C1C1E");
 w.url = "scriptable:///run/Creatina";
 
 const topStack = w.addStack();
+w.backgroundColor =
+  taken
+    ? new Color("#16351F")
+    : new Color("#1C1C1E");
+
+// tocar widget
+w.url =
+  "scriptable:///run/Creatina";
+
+// padding
+w.setPadding(
+  16,
+  16,
+  16,
+  16
+);
+
+// ===============================
+// HEADER
+// ===============================
+
+const topStack =
+  w.addStack();
+
 topStack.layoutHorizontally();
+
 topStack.centerAlignContent();
 const iconBg = topStack.addStack();
 iconBg.backgroundColor = new Color("#E24B4A");
 iconBg.cornerRadius = 8;
 iconBg.size = new Size(28, 28);
+
+// icon bg
+const iconBg =
+  topStack.addStack();
+
+iconBg.backgroundColor =
+  new Color("#E24B4A");
+
+iconBg.cornerRadius = 10;
+
+iconBg.size =
+  new Size(30, 30);
+
 iconBg.centerAlignContent();
 const iconTxt = iconBg.addText("💊");
 iconTxt.font = Font.systemFont(14);
 topStack.addSpacer(8);
 const titleStack = topStack.addStack();
+
+// icon
+const icon =
+  SFSymbol.named(
+    "pills.fill"
+  );
+
+const iconImg =
+  iconBg.addImage(
+    icon.image
+  );
+
+iconImg.tintColor =
+  Color.white();
+
+iconImg.imageSize =
+  new Size(15,15);
+
+topStack.addSpacer(10);
+
+// title stack
+const titleStack =
+  topStack.addStack();
+
 titleStack.layoutVertically();
 const appLbl = titleStack.addText("GymLog");
 appLbl.font = Font.systemFont(9);
@@ -509,9 +689,44 @@ appLbl.textColor = new Color("#FFFFFF", 0.4);
 const titleLbl = titleStack.addText("Creatina");
 titleLbl.font = Font.boldSystemFont(13);
 titleLbl.textColor = Color.white();
+
+const appLbl =
+  titleStack.addText(
+    "GymLog"
+  );
+
+appLbl.font =
+  Font.systemFont(9);
+
+appLbl.textColor =
+  new Color(
+    "#FFFFFF",
+    0.4
+  );
+
+const titleLbl =
+  titleStack.addText(
+    "Creatina"
+  );
+
+titleLbl.font =
+  Font.boldSystemFont(14);
+
+titleLbl.textColor =
+  Color.white();
+
+// ===============================
+// CENTRO
+// ===============================
+
 w.addSpacer();
 const centerStack = w.addStack();
+
+const centerStack =
+  w.addStack();
+
 centerStack.layoutVertically();
+
 centerStack.centerAlignContent();
 const emoji = centerStack.addText(taken ? "✅" : "❓");
 emoji.font = Font.systemFont(28);
@@ -521,10 +736,53 @@ const statusTxt = centerStack.addText(taken ? "¡Tomada! 💪" : "Tocá para mar
 statusTxt.font = Font.systemFont(11);
 statusTxt.textColor = taken ? new Color("#4CAF50") : new Color("#FFFFFF", 0.7);
 statusTxt.centerAlignText();
+
+const emoji =
+  centerStack.addText(
+    taken
+      ? "✅"
+      : "⬜️"
+  );
+
+emoji.font =
+  Font.systemFont(34);
+
+centerStack.addSpacer(4);
+
+const statusTxt =
+  centerStack.addText(
+    taken
+      ? "Tomada"
+      : "No tomada"
+  );
+
+statusTxt.font =
+  Font.systemFont(12);
+
+statusTxt.textColor =
+  taken
+    ? new Color("#4CAF50")
+    : new Color(
+        "#FFFFFF",
+        0.7
+      );
+
+// ===============================
+// FOOTER
+// ===============================
+
 w.addSpacer();
 const bottomStack = w.addStack();
+
+const bottomStack =
+  w.addStack();
+
 bottomStack.layoutHorizontally();
 const streakStack = bottomStack.addStack();
+
+const streakStack =
+  bottomStack.addStack();
+
 streakStack.layoutVertically();
 const streakNum = streakStack.addText("🔥 " + streak);
 streakNum.font = Font.boldSystemFont(18);
@@ -532,7 +790,34 @@ streakNum.textColor = Color.white();
 const streakLbl = streakStack.addText("días racha");
 streakLbl.font = Font.systemFont(9);
 streakLbl.textColor = new Color("#FFFFFF", 0.4);
+
+const streakNum =
+  streakStack.addText(
+    "🔥 " + streak
+  );
+
+streakNum.font =
+  Font.boldSystemFont(18);
+
+streakNum.textColor =
+  Color.white();
+
+const streakLbl =
+  streakStack.addText(
+    "días seguidos"
+  );
+
+streakLbl.font =
+  Font.systemFont(9);
+
+streakLbl.textColor =
+  new Color(
+    "#FFFFFF",
+    0.4
+  );
+
 bottomStack.addSpacer();
+
 const d = new Date();
 const dateLbl = bottomStack.addText(d.getDate()+"/"+(d.getMonth()+1));
 dateLbl.font = Font.systemFont(10);
@@ -552,6 +837,12 @@ function fallbackCopy(text){
   try{document.execCommand('copy');toast('Código copiado!');}catch(e){toast('No se pudo copiar');}
   document.body.removeChild(ta);
 }
+const dateLbl =
+  bottomStack.addText(
+    d.getDate() +
+    "/" +
+    (d.getMonth() + 1)
+  );
 
 function renderHome(){
   const weekAgo=Date.now()-7*86400000;
@@ -585,6 +876,8 @@ function renderHome(){
     </div>`;
   }).join('');
 }
+dateLbl.font =
+  Font.systemFont(10);
 
 function openDay(id){
   currentDay=JSON.parse(JSON.stringify(db.routine.find(d=>d.id===id)));
@@ -644,6 +937,11 @@ function saveSession(){
   db.workouts.push({id:Date.now(),dayId:currentDay.id,date:new Date().toISOString(),exCount,totalSets,bests});
   saveDb();toast('Sesión guardada 💪');show('home');renderHome();
 }
+dateLbl.textColor =
+  new Color(
+    "#FFFFFF",
+    0.3
+  );
 
 function renderProgress(){
   document.getElementById('ps-total').textContent=db.workouts.length;
@@ -654,6 +952,9 @@ function renderProgress(){
   if(allEx.size===0){bl.innerHTML='<div style="color:var(--hint);font-size:14px;text-align:center;padding:24px 0">Registrá sesiones con peso<br>para ver tus marcas aquí.</div>';return;}
   bl.innerHTML=[...allEx].map(n=>`<div class="prog-ex-item"><div class="prog-ex-name">${n}</div><div class="prog-ex-best">🏆 Mejor marca: ${bests[n]} kg</div></div>`).join('');
 }
+// ===============================
+// SHOW
+// ===============================
 
 function buildSystemPrompt(){
   const rs=db.routine.map(d=>`Día ${d.id} (${d.name}): ${d.bloques.map(b=>b.ejercicios.map(e=>e.name).join(', ')).join(' | ')}`).join('\n');
@@ -686,8 +987,10 @@ function appendMsg(html,cls){
 function quickMsg(msg){document.getElementById('chat-in').value=msg;sendMsg();}
 
 function getDefaultRoutine(){return [{id:1,name:"Empuje + Core",bloques:[{nombre:"Bloque 1",vueltas:2,ejercicios:[{id:'e1',name:"Press banca",target:"5 reps",note:"Fuerza máxima — explosivo en el ascenso",sets:[{reps:'',w:''},{reps:'',w:''}]},{id:'e2',name:"Plancha",target:"45 s",note:"Core estabilizador — fundamental para el contacto",sets:[{reps:'45s',w:''},{reps:'45s',w:''}]},{id:'e3',name:"Dominadas / Jalón",target:"6-8 reps",note:"Pull antagonista — cuida los hombros",sets:[{reps:'',w:''},{reps:'',w:''}]},{id:'e4',name:"Remo con barra",target:"8 reps",note:"Espalda alta — clave en scrum y tackle",sets:[{reps:'',w:''},{reps:'',w:''}]}]},{nombre:"Bloque 2",vueltas:2,ejercicios:[{id:'e5',name:"Press militar",target:"6 reps",note:"Fuerza de empuje vertical",sets:[{reps:'',w:''},{reps:'',w:''}]},{id:'e6',name:"Jalón al pecho agarre neutro",target:"8 reps",note:"Dorsal + bíceps",sets:[{reps:'',w:''},{reps:'',w:''}]},{id:'e7',name:"Saltos explosivos con flexión",target:"5 reps",note:"Potencia reactiva — específico rugby",sets:[{reps:'',w:''},{reps:'',w:''}]}]}]},{id:2,name:"Piernas + Explosividad",bloques:[{nombre:"Bloque 1",vueltas:4,ejercicios:[{id:'e8',name:"Squat jumps",target:"5 reps",note:"Potencia tren inferior — aceleración",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]},{id:'e9',name:"Sentadilla",target:"5 reps",note:"Base de fuerza — peso progresivo",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]},{id:'e10',name:"Ab wheel",target:"10 reps",note:"Core anti-extensión",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]}]},{nombre:"Bloque 2",vueltas:4,ejercicios:[{id:'e11',name:"Peso muerto rumano",target:"6 reps",note:"Cadena posterior — isquios y glúteos",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]},{id:'e12',name:"Bulgarian split squat",target:"8 c/pierna",note:"Unilateral — corrige asimetrías",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]},{id:'e13',name:"Gemelos",target:"15 reps",note:"Resistencia a lesiones + agilidad",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]}]}]},{id:3,name:"Hombros + Espalda",bloques:[{nombre:"Bloque 1",vueltas:4,ejercicios:[{id:'e14',name:"Press inclinado mancuerna",target:"10 reps",note:"Pectoral superior + estabilizadores",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]},{id:'e15',name:"Dominadas / Jalón",target:"10 reps",note:"Dorsal ancho — potencia en el tackle",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]},{id:'e16',name:"Elevaciones laterales",target:"15 reps",note:"Deltoides medial — protección hombro",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]}]},{nombre:"Bloque 2",vueltas:4,ejercicios:[{id:'e17',name:"Remo gorila",target:"10 reps",note:"Espalda baja + dorsal",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]},{id:'e18',name:"Press militar mancuerna",target:"10 reps",note:"Fuerza de empuje — rango completo",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]},{id:'e19',name:"Remo con barra",target:"8 reps",note:"Espalda alta + bíceps",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]}]}]},{id:4,name:"Cadena posterior + Potencia",bloques:[{nombre:"Bloque 1",vueltas:4,ejercicios:[{id:'e20',name:"Peso muerto",target:"5 reps",note:"Rey de la fuerza — técnica perfecta",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]},{id:'e21',name:"Box jumps",target:"5 reps",note:"Potencia explosiva — sprints rugby",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]},{id:'e22',name:"Russian twists",target:"15 reps",note:"Rotación de core — pases y tackles",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]}]},{nombre:"Bloque 2",vueltas:4,ejercicios:[{id:'e23',name:"Front squat / Prensa",target:"8 reps",note:"Cuádriceps — fuerza de scrum",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]},{id:'e24',name:"Zancadas caminando",target:"10 c/pierna",note:"Unilateral + estabilidad dinámica",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]},{id:'e25',name:"Curl femoral",target:"12 reps",note:"Isquios — prevención lesiones",sets:[{reps:'',w:''},{reps:'',w:''},{reps:'',w:''},{reps:'',w:''}]}]}]}];}
+Script.setWidget(w);
 
 renderHome();
 </script>
 </body>
 </html>
+Script.complete();
