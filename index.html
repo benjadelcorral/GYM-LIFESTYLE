@@ -1,349 +1,122 @@
-// ===============================
-// GymLog Rugby — Widget Creatina
-// ===============================
+<!DOCTYPE html>
+<html>
 
-// REEMPLAZÁ ESTE LINK POR EL TUYO
-const APP_URL =
-  "https://TUUSUARIO.github.io/TUREPO/#creatina";
+<head>
 
-// ===============================
+  <title>Gym Lifestyle</title>
 
-const KEY = "gymlog_creatina_data";
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
 
-const fm = FileManager.local();
+  <style>
 
-const path = fm.joinPath(
-  fm.documentsDirectory(),
-  KEY + ".json"
-);
-
-// ===============================
-// STORAGE
-// ===============================
-
-function loadData() {
-
-  if (!fm.fileExists(path)) {
-    return {};
-  }
-
-  try {
-
-    return JSON.parse(
-      fm.readString(path)
-    );
-
-  } catch(e) {
-
-    return {};
-
-  }
-}
-
-function saveData(data) {
-
-  fm.writeString(
-    path,
-    JSON.stringify(data)
-  );
-}
-
-function todayKey() {
-
-  const d = new Date();
-
-  return (
-    d.getFullYear() +
-    "-" +
-    (d.getMonth() + 1) +
-    "-" +
-    d.getDate()
-  );
-}
-
-// ===============================
-// RACHA
-// ===============================
-
-function calcStreak(data) {
-
-  let streak = 0;
-
-  let d = new Date();
-
-  for (let i = 0; i < 365; i++) {
-
-    const k =
-      d.getFullYear() +
-      "-" +
-      (d.getMonth() + 1) +
-      "-" +
-      d.getDate();
-
-    if (data[k] === true) {
-
-      streak++;
-
-      d.setDate(
-        d.getDate() - 1
-      );
-
-    } else {
-
-      break;
-
+    body {
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
     }
-  }
 
-  return streak;
+    .card {
+
+      background: #1c1c1e;
+
+      padding: 30px;
+
+      border-radius: 25px;
+
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    button {
+
+      width: 100%;
+
+      padding: 18px;
+
+      border: none;
+
+      border-radius: 18px;
+
+      font-size: 20px;
+
+      background: #E24B4A;
+
+      color: white;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <!-- OTRAS SECCIONES -->
+
+  <div class="card">
+
+    <h1>Entrenamiento</h1>
+
+    <p>
+      Tu rutina del día.
+    </p>
+
+  </div>
+
+  <!-- SECCION CREATINA -->
+
+  <div class="card" id="creatina">
+
+    <h1>Creatina</h1>
+
+    <button id="btn">
+      ⬜️ No tomada
+    </button>
+
+  </div>
+
+<script>
+
+const btn =
+  document.getElementById("btn");
+
+let taken =
+  localStorage.getItem("creatina")
+  === "true";
+
+function render() {
+
+  btn.innerText =
+    taken
+      ? "✅ Tomada"
+      : "⬜️ No tomada";
+
+  btn.style.background =
+    taken
+      ? "#2E7D32"
+      : "#E24B4A";
 }
 
-// ===============================
-// CLICK EN WIDGET
-// ===============================
+render();
 
-if (!config.runsInWidget) {
+btn.onclick = () => {
 
-  let data = loadData();
+  taken = !taken;
 
-  const k = todayKey();
-
-  // cambia el estado
-  data[k] = data[k] !== true;
-
-  saveData(data);
-
-  // vibración
-  Device.mediumImpact();
-
-  // abrir app directo a creatina
-  Safari.open(APP_URL);
-
-  Script.complete();
-
-  return;
-}
-
-// ===============================
-// DATA
-// ===============================
-
-const data = loadData();
-
-const k = todayKey();
-
-const taken =
-  data[k] === true;
-
-const streak =
-  calcStreak(data);
-
-// ===============================
-// WIDGET
-// ===============================
-
-const w = new ListWidget();
-
-w.backgroundColor =
-  taken
-    ? new Color("#16351F")
-    : new Color("#1C1C1E");
-
-// tocar widget
-w.url =
-  "scriptable:///run/Creatina";
-
-// padding
-w.setPadding(
-  16,
-  16,
-  16,
-  16
-);
-
-// ===============================
-// HEADER
-// ===============================
-
-const topStack =
-  w.addStack();
-
-topStack.layoutHorizontally();
-
-topStack.centerAlignContent();
-
-// icon bg
-const iconBg =
-  topStack.addStack();
-
-iconBg.backgroundColor =
-  new Color("#E24B4A");
-
-iconBg.cornerRadius = 10;
-
-iconBg.size =
-  new Size(30, 30);
-
-iconBg.centerAlignContent();
-
-// icon
-const icon =
-  SFSymbol.named(
-    "pills.fill"
-  );
-
-const iconImg =
-  iconBg.addImage(
-    icon.image
-  );
-
-iconImg.tintColor =
-  Color.white();
-
-iconImg.imageSize =
-  new Size(15,15);
-
-topStack.addSpacer(10);
-
-// title stack
-const titleStack =
-  topStack.addStack();
-
-titleStack.layoutVertically();
-
-const appLbl =
-  titleStack.addText(
-    "GymLog"
-  );
-
-appLbl.font =
-  Font.systemFont(9);
-
-appLbl.textColor =
-  new Color(
-    "#FFFFFF",
-    0.4
-  );
-
-const titleLbl =
-  titleStack.addText(
-    "Creatina"
-  );
-
-titleLbl.font =
-  Font.boldSystemFont(14);
-
-titleLbl.textColor =
-  Color.white();
-
-// ===============================
-// CENTRO
-// ===============================
-
-w.addSpacer();
-
-const centerStack =
-  w.addStack();
-
-centerStack.layoutVertically();
-
-centerStack.centerAlignContent();
-
-const emoji =
-  centerStack.addText(
+  localStorage.setItem(
+    "creatina",
     taken
-      ? "✅"
-      : "⬜️"
   );
 
-emoji.font =
-  Font.systemFont(34);
+  render();
+};
 
-centerStack.addSpacer(4);
+</script>
 
-const statusTxt =
-  centerStack.addText(
-    taken
-      ? "Tomada"
-      : "No tomada"
-  );
-
-statusTxt.font =
-  Font.systemFont(12);
-
-statusTxt.textColor =
-  taken
-    ? new Color("#4CAF50")
-    : new Color(
-        "#FFFFFF",
-        0.7
-      );
-
-// ===============================
-// FOOTER
-// ===============================
-
-w.addSpacer();
-
-const bottomStack =
-  w.addStack();
-
-bottomStack.layoutHorizontally();
-
-const streakStack =
-  bottomStack.addStack();
-
-streakStack.layoutVertically();
-
-const streakNum =
-  streakStack.addText(
-    "🔥 " + streak
-  );
-
-streakNum.font =
-  Font.boldSystemFont(18);
-
-streakNum.textColor =
-  Color.white();
-
-const streakLbl =
-  streakStack.addText(
-    "días seguidos"
-  );
-
-streakLbl.font =
-  Font.systemFont(9);
-
-streakLbl.textColor =
-  new Color(
-    "#FFFFFF",
-    0.4
-  );
-
-bottomStack.addSpacer();
-
-const d = new Date();
-
-const dateLbl =
-  bottomStack.addText(
-    d.getDate() +
-    "/" +
-    (d.getMonth() + 1)
-  );
-
-dateLbl.font =
-  Font.systemFont(10);
-
-dateLbl.textColor =
-  new Color(
-    "#FFFFFF",
-    0.3
-  );
-
-// ===============================
-// SHOW
-// ===============================
-
-Script.setWidget(w);
-
-Script.complete();
+</body>
+</html>
